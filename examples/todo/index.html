@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="must-revalidate">
+    <title>Eagle test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimum-scale=1.0"
+    />
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+
+<body>
+    <div id="app">
+        <section id="todoapp">
+            <header id="header">
+                <h1>todos</h1>
+                <form id="todo-form" e-on:submit="edit.bind(this)">
+                    <input id="new-todo" placeholder="What needs to be done?" e-value="message" autofocus="autofocus" e-on:change="change.bind(this)"/>
+                </form>
+            </header>
+            <section id="main" e-show="todos.length">
+                <input id="toggle-all" type="checkbox" e-on:change="toggleAll" e-checked="selectAll"/>
+                <label for="toggle-all">Mark all as complete</label>
+                <ul id="todo-list">
+                    <li e-for="(todo, ix) in todos" e-class="{completed: todo.completed, editing: todo.editing}" e-data-ix="ix" e-on:click="toggleItem">
+                        <div class="view">
+                            <input class="toggle" type="checkbox" e-checked="todo.completed"/>
+                            <label>{{todo.title}}</label>
+                            <button class="destroy" e-data-ix="ix" e-on:click="deleteItem"></button>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+            <footer id="footer" e-if="todos.length" class="">
+                <span id="todo-count"><strong>{{remainingCount}}</strong>
+                    <span> items left</span>
+                </span>
+                <ul id="filters">
+                    <li>
+                        <a href="#/" class="selected">All</a>
+                    </li>
+                    <li>
+                        <a href="#/active">Active</a>
+                    </li>
+                    <li>
+                        <a  href="#/completed">Completed</a>
+                    </li>
+                </ul>
+                <button id="clear-completed" e-on:click="clearCompletedTodos">Clear completed</button>
+            </footer>
+        </section>
+        <footer id="info">
+            <p>Credits:
+                <a href="http://twitter.com/cburgdorf">Christoph Burgdorf</a>,
+                <a href="http://ericbidelman.com">Eric Bidelman</a>,
+                <a href="http://jacobmumm.com">Jacob Mumm</a> and
+                <a href="http://blog.igorminar.com">Igor Minar</a>
+            </p>
+            <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+        </footer>
+    </div>
+</body>
+<script src="../../dist/eagle.js"></script>
+<script src="./js/todo.js"></script>
+
+</html>

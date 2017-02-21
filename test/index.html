@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="must-revalidate">
+    <title>Eagle test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimum-scale=1.0"
+    />
+</head>
+
+<body>
+    <div id="app">
+        <h1 e-style="{color: '#000', fontSize: fontSize + 'px'}" e-for="(item, ix) in list" :key="ix">test demo</h1>
+        <h4 e-class="{active: message}">hello {{message}}</h4>
+    </div>
+    <!--debug-->
+    <script src="../dist/eagle.js"></script>
+    <script>
+        var app = new Eagle({
+            el: '#app',
+            data: {
+                list: ['aaa', 'bbb'],
+                message: 'Hello Vue!',
+                fontSize: '20'
+            }
+        })
+    </script>
+    <!--/debug-->
+</body>
+
+</html>
