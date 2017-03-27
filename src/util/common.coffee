@@ -54,3 +54,45 @@ exports.extend = (source, dist={}) ->
         source[v] = dist[v]
 
     source
+
+###
+ * nextTick
+ * @wiki vue.js env.js
+###
+exports.nextTick = (
+    callbacks = []
+
+    ###
+     * 下一帧的处理方法
+    ###
+    nextTickHandle = () ->
+        pending = false
+        cbs = callbacks.slice 0
+        callbacks = []
+        cbs.forEach (v) ->
+            v()
+
+    if typeof MutationObserver?
+        counter = 1
+        observer = new MutationObserver nextTickHandle
+        textNode = document.createTextNode counter
+
+        observer.observe textNode,
+            characterData: true
+
+        timeFuction = () ->
+            counter = (counter + 1) % 2
+            textNode.data = counter
+
+    else
+        timeFuction = window.setImmediate or setTimeout
+
+    (cb, ctx) ->
+        func = if ctx then () -> cb.call ctx else cb
+
+        callbacks.push func
+        return if pending
+        pending = true
+
+        timeFuction nextTickHandle, 0
+)

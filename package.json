@@ -4,8 +4,8 @@
   "description": "eagle: a light virtual dom",
   "main": "index.coffee",
   "scripts": {
-    "dev": "webpack --watch",
-    "rollup": "rollup -c ./script/rollup.dev.config.js",
+    "dev": "webpack --config ./script/webpack.config.js --watch",
+    "rollup": "rollup -c ./script/rollup.dev.config.js -w",
     "lint": "eslint ./src && ./node_modules/coffeelint/bin/coffeelint ./src",
     "test": "mocha",
     "build": "NODE_ENV=production node build/build.js"

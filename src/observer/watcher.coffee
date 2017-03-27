@@ -4,6 +4,7 @@
 ###
 'use strict'
 Dependence = require './dependence.coffee'
+{ pushWatcher } = require './queueWatcher.coffee'
 
 uid = 0
 
@@ -19,7 +20,7 @@ module.exports = class Watcher
         if isFun
             @.getter = @.render
             @.setter = undefined
-        
+
         @.value = undefined if @.lazy
         @.value = @.get() if not @.lazy
 
@@ -28,12 +29,21 @@ module.exports = class Watcher
         value = @.getter.call @.vm, @.vm
         @.afterGet()
         value
-    
+
     set: (value) ->
         @.setter.call @.vm, @.vm, value
 
+    ###
+     * update watcher
+    ###
     update: () ->
-        @.run()
+        sync = @.vm.sync
+        @.run() if sync
+
+        if not sync
+            @.queued = true
+            pushWatcher @
+
 
     run: () ->
         value = @.get()
@@ -51,4 +61,3 @@ module.exports = class Watcher
     afterGet: () ->
         Dependence.target = null
 
-        

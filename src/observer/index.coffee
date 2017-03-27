@@ -57,7 +57,7 @@ defineReactive = (data, key, value) ->
                 setter.call data, newVal
             else
                 value = newVal
-            
+
             childOb = observer newVal
             dep.notify()
 
@@ -77,7 +77,7 @@ class Observer
             @.observerArray data
         else
             @.walk data
-        
+
         # set Object __ob__ property
         Object.defineProperty data, '__ob__',
             value: @
@@ -85,7 +85,7 @@ class Observer
             writable: true
             configurable: true
 
-    
+
     walk: (data) ->
         key = Object.keys data
         key.forEach (v, i) ->
@@ -106,7 +106,7 @@ observer = (data, vm) ->
         ob = data.__ob__
     else
         ob = new Observer data
-    
+
     # add component
     ob.addVm vm if vm
     ob

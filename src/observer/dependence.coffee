@@ -9,7 +9,7 @@ module.exports = class Dependence
     constructor: ->
         @.subsMap = {}
         @.subs = []
-    
+
     ###
      * add watcher without repeat
     ###
@@ -17,14 +17,14 @@ module.exports = class Dependence
         if not @.subsMap[sub.id]
             @.subs.push sub
             @.subsMap[sub.id] = sub
-    
+
     removeSub: (sub) ->
         @.subs.$remove sub
         delete @.subsMap[sub.id]
 
     depend: ->
         @.addSub Dependence.target
-    
+
     ###
      * exec add watchers
     ###
