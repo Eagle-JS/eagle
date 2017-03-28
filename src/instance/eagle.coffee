@@ -18,23 +18,34 @@ Watcher = require '../observer/watcher.coffee'
 uid = 0
 
 module.exports = class Component
-    constructor: (@options) ->
+    ###
+     * @param options 参数
+     * @param context vm dependent context
+    ###
+    constructor: (@options, @context) ->
         @._id = "component_#{ uid++ }"
         # option message change to this
         Object.keys(@.options).forEach (v) =>
             @[v] = @.options[v]
 
-        @.data = @.data || {}
+        @.data = @.data or {}
+        @.props = @.props or {}
+
         @.el = document.querySelector @.options.el || 'body'
 
         # template exists, add to dom
         html @.el, @.options.template if @.options.template
 
+        # proxy data
         Object.keys(@.data).forEach (v, i) =>
-            @.proxy v
+            @.proxyData v
+
+        # proxy props attribute
+        Object.keys(@.props).forEach (v, i) =>
+            @.proxyProps v, @.context
+
 
         @.ob = observer @.data
-
         # events
         @.delegator = new Delegator()
 
@@ -52,8 +63,8 @@ module.exports = class Component
         @.update @.watcher.value
 
         # update subsCompoents
-        @.subsCompoents.forEach (v) ->
-            new Component v
+        @.subsCompoents.forEach (v) =>
+            new Component v, @
 
 
     ###
@@ -74,7 +85,7 @@ module.exports = class Component
     ###
      * add data key to component
     ###
-    proxy: (key) ->
+    proxyData: (key) ->
         Object.defineProperty @, key,
             configurable: true,
             enumerable: true,
@@ -82,6 +93,18 @@ module.exports = class Component
                 @.data[key]
             set: (val) =>
                 @.data[key] = val
+
+
+    ###
+     * proxy props message
+    ###
+    proxyProps: (key, ctx) ->
+        return if not ctx
+        Object.defineProperty @, key,
+            configurable: true,
+            enumerable: true,
+            get: () =>
+                ctx[key]
 
 
     ###

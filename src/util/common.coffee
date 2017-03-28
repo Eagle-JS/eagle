@@ -48,10 +48,14 @@ exports.hasProto = '__proto__' in {}
 ###
  * extend dist to source
 ###
-exports.extend = (source, dist={}) ->
+exports.extend = (source, dist...) ->
     source = source or {}
-    Object.keys(dist).forEach (v) ->
-        source[v] = dist[v]
+    dist = dist or []
+
+    dist.forEach (item) ->
+        item = item or {}
+        Object.keys(item).forEach (v) ->
+            source[v] = item[v]
 
     source
 

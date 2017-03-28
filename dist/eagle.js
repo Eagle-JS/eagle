@@ -339,6 +339,7 @@ var observer$1;
 var textNode;
 var timeFuction;
 var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+var slice = [].slice;
 
 var hasOwn = function(obj, key) {
   return Object.hasOwnProperty.call(obj, key);
@@ -397,13 +398,16 @@ var hasProto = indexOf.call({}, '__proto__') >= 0;
  * extend dist to source
  */
 
-var extend$1 = function(source, dist) {
-  if (dist == null) {
-    dist = {};
-  }
+var extend$1 = function() {
+  var dist, source;
+  source = arguments[0], dist = 2 <= arguments.length ? slice.call(arguments, 1) : [];
   source = source || {};
-  Object.keys(dist).forEach(function(v) {
-    return source[v] = dist[v];
+  dist = dist || [];
+  dist.forEach(function(item) {
+    item = item || {};
+    return Object.keys(item).forEach(function(v) {
+      return source[v] = item[v];
+    });
   });
   return source;
 };
@@ -599,9 +603,9 @@ generator$1 = {
     var e, props, query, sub;
     query = "[key=" + vm._id + "]";
     props = this.genProps(el);
-    props.push("el: '" + query + "'");
+    props = "props: { " + (props.join(',')) + " }";
     try {
-      sub = new Function("with(this) { return _extend(" + el.tag + ", { " + (props.join(',')) + "}) }").call(vm);
+      sub = new Function("with(this) { return _extend(" + el.tag + ", { " + props + " }, { el: '" + query + "' }) }").call(vm);
       vm.subsCompoents.push(sub);
     } catch (error) {
       e = error;
@@ -1291,7 +1295,7 @@ function errorString(obj) {
 
 var h_1 = index$4;
 
-var slice = Array.prototype.slice;
+var slice$1 = Array.prototype.slice;
 
 var index$16 = iterativelyWalk;
 
@@ -1300,7 +1304,7 @@ function iterativelyWalk(nodes, cb) {
         nodes = [nodes];
     }
     
-    nodes = slice.call(nodes);
+    nodes = slice$1.call(nodes);
 
     while(nodes.length) {
         var node = nodes.shift(),
@@ -1311,7 +1315,7 @@ function iterativelyWalk(nodes, cb) {
         }
 
         if (node.childNodes && node.childNodes.length) {
-            nodes = slice.call(node.childNodes).concat(nodes);
+            nodes = slice$1.call(node.childNodes).concat(nodes);
         }
     }
 }
@@ -3968,8 +3972,14 @@ ref1 = common, argsToArray = ref1.argsToArray, extend = ref1.extend;
 uid = 0;
 
 var eagle = Component = (function() {
-  function Component(options) {
+
+  /*
+   * @param options 参数
+   * @param context vm dependent context
+   */
+  function Component(options, context) {
     this.options = options;
+    this.context = context;
     this._id = "component_" + (uid++);
     Object.keys(this.options).forEach((function(_this) {
       return function(v) {
@@ -3977,13 +3987,19 @@ var eagle = Component = (function() {
       };
     })(this));
     this.data = this.data || {};
+    this.props = this.props || {};
     this.el = document.querySelector(this.options.el || 'body');
     if (this.options.template) {
       html(this.el, this.options.template);
     }
     Object.keys(this.data).forEach((function(_this) {
       return function(v, i) {
-        return _this.proxy(v);
+        return _this.proxyData(v);
+      };
+    })(this));
+    Object.keys(this.props).forEach((function(_this) {
+      return function(v, i) {
+        return _this.proxyProps(v, _this.context);
       };
     })(this));
     this.ob = observer(this.data);
@@ -3993,9 +4009,11 @@ var eagle = Component = (function() {
     this.watchers = [];
     this.watcher = new Watcher(this, this.render, this.update);
     this.update(this.watcher.value);
-    this.subsCompoents.forEach(function(v) {
-      return new Component(v);
-    });
+    this.subsCompoents.forEach((function(_this) {
+      return function(v) {
+        return new Component(v, _this);
+      };
+    })(this));
   }
 
 
@@ -4021,7 +4039,7 @@ var eagle = Component = (function() {
    * add data key to component
    */
 
-  Component.prototype.proxy = function(key) {
+  Component.prototype.proxyData = function(key) {
     return Object.defineProperty(this, key, {
       configurable: true,
       enumerable: true,
@@ -4033,6 +4051,26 @@ var eagle = Component = (function() {
       set: (function(_this) {
         return function(val) {
           return _this.data[key] = val;
+        };
+      })(this)
+    });
+  };
+
+
+  /*
+   * proxy props message
+   */
+
+  Component.prototype.proxyProps = function(key, ctx) {
+    if (!ctx) {
+      return;
+    }
+    return Object.defineProperty(this, key, {
+      configurable: true,
+      enumerable: true,
+      get: (function(_this) {
+        return function() {
+          return ctx[key];
         };
       })(this)
     });

@@ -52,14 +52,16 @@ generator =
     genCustomTag: (el) ->
         query = "[key=#{ vm._id }]"
         props = @.genProps el
-        props.push "el: '#{ query }'"
+        props = "props: { #{props.join(',')} }"
 
+        # props.push "el: '#{ query }'"
         try
-            sub = new Function("with(this) { return _extend(#{ el.tag }, { #{ props.join(',') }}) }").call vm
+            sub = new Function("with(this) { return _extend(#{ el.tag }, { #{ props } }, { el: '#{ query }' }) }").call vm
             vm.subsCompoents.push sub
         catch e
             console.error "can not find subsCompoents #{ el.tag }"
 
+        # dynamic generate an div tag as parent tag
         "__h__( 'div', {attributes: {'key': '#{ vm._id }'}}, [])"
 
 
