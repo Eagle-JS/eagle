@@ -4,7 +4,7 @@
   "description": "eagle: a light virtual dom",
   "main": "index.coffee",
   "scripts": {
-    "dev": "webpack --config ./script/webpack.config.js --watch",
+    "dev": "webpack --config ./script/webpack.config.js --watch --display-modules",
     "rollup": "rollup -c ./script/rollup.dev.config.js -w",
     "lint": "eslint ./src && ./node_modules/coffeelint/bin/coffeelint ./src",
     "test": "mocha",
@@ -33,6 +33,7 @@
     "rollup-plugin-coffee-script": "^1.1.0",
     "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-builtins": "^2.1.0",
+    "rollup-plugin-node-globals": "^1.1.0",
     "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-watch": "^3.2.2",
     "uglify-js": "^2.7.5",

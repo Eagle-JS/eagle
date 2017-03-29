@@ -10,6 +10,14 @@
 exports.hasOwn = (obj, key) ->
     Object.hasOwnProperty.call obj, key
 
+###
+ * check an argument is function or not
+ * wiki: http://stackoverflow.com/questions/5999998/how-can-i-check-if-a-javascript-variable-is-function-type
+###
+exports.isFunction = (arg) ->
+    type = {}
+    arg and type.toString.call(arg) is '[object Function]'
+
 
 ###
  * define obj attr

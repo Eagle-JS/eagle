@@ -14,7 +14,7 @@ Delegator = require 'dom-delegator'
 { replaceWith, html } = require '../util/dom.coffee'
 observer = require '../observer/index.coffee'
 Watcher = require '../observer/watcher.coffee'
-{ argsToArray, extend } = require '../util/common.coffee'
+{ argsToArray, extend, isFunction } = require '../util/common.coffee'
 uid = 0
 
 module.exports = class Component
@@ -32,6 +32,8 @@ module.exports = class Component
         @.props = @.props or {}
 
         @.el = document.querySelector @.options.el || 'body'
+
+        @.options.template = @.options.template.call @, @.el.innerHTML if isFunction @.options.template
 
         # template exists, add to dom
         html @.el, @.options.template if @.options.template

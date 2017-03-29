@@ -30,18 +30,33 @@ generator =
 
 
     ###
+     * is html attr
+    ###
+    isHTMLAttrs: (attr) ->
+        attr.indexOf(':') isnt 0 and attr.indexOf('e-') isnt 0
+
+    ###
+     * is an attr is prop or not
+    ###
+    isProps: (attr) ->
+        attr.indexOf(':') is 0
+
+    ###
      * generator props
     ###
-    genProps: (el) ->
+    genProps: (attrsMap, iterator, filter = -> ) ->
         result = []
-        propsKeys = Object.keys(el.attrsMap).filter (v) ->
-            v.indexOf(':') is 0
+        propsKeys = Object.keys(attrsMap)
+
+        if filter
+            propsKeys = propsKeys.filter (v) ->
+                filter.call null, v
 
         propsKeys.forEach (v) ->
-            result.push "#{ v.slice(1) }: #{ el.attrsMap[v] }"
+            result.push iterator.call null, v, attrsMap[v]
 
-        propsKeys.forEach (v) ->
-            delete el.attrsMap[v]
+        # propsKeys.forEach (v) ->
+        #     delete el.attrsMap[v]
 
         result
 
@@ -51,18 +66,31 @@ generator =
     ###
     genCustomTag: (el) ->
         query = "[key=#{ vm._id }]"
-        props = @.genProps el
+        # 获取 props
+        props = @.genProps el.attrsMap, (key, value) ->
+                    "#{ key.slice(1) }: #{ value }"
+                , @.isProps
+
         props = "props: { #{props.join(',')} }"
+
+        # get attrs
+        htmlAttrs = @.genProps el.attrsMap, (key, value) ->
+                    "#{ key }: '#{ value }'"
+                , @.isHTMLAttrs
+
+        htmlAttrs = htmlAttrs.join ','
+        # reset attrsMap
+        el.attrsMap = {}
 
         # props.push "el: '#{ query }'"
         try
-            sub = new Function("with(this) { return _extend(#{ el.tag }, { #{ props } }, { el: '#{ query }' }) }").call vm
+            sub = new Function("with(this) { return _extend(#{ el.tag }, { #{ htmlAttrs } }, { #{ props } }, { el: '#{ query }' }) }").call vm
             vm.subsCompoents.push sub
         catch e
-            console.error "can not find subsCompoents #{ el.tag }"
+            console.error "can not find subsCompoents #{ el.tag }, reason: #{ e.stack }"
 
         # dynamic generate an div tag as parent tag
-        "__h__( 'div', {attributes: {'key': '#{ vm._id }'}}, [])"
+        "__h__( 'div', {attributes: {'key': '#{ vm._id }'}}, #{ this.children(el.children, el) })"
 
 
     ###
@@ -101,7 +129,9 @@ generator =
             delete el.attrsMap[v]
 
         {
+            # 表示 html 的标准属性 eg: e-for, e-style 之类
             html: result
+            # 用户自定义属性，e-data-ix 之类
             attr: attributes
         }
 
